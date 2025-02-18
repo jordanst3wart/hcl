@@ -25,3 +25,11 @@ jobs:
 
       - name: Test with Gradle
         run: ./gradlew test
+
+# if master push to maven
+#      - name: Publish to Maven
+#        if: github.ref == 'refs/heads/master'
+#        run: ./gradlew publish
+#        env:
+#          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+#          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
