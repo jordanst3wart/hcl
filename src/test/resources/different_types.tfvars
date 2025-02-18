@@ -1,9 +1,11 @@
 # Simple scalar types
-project_name = "my-awesome-project"
-environment = "production"
-instance_count = 3
-enable_monitoring = true
-cpu_utilization = 75.5
-
+string = "string"
+# invalid 'string'
+# invalid boolean False
+int = 3
+bool = true
+float = 75.5
+# special characters
+# : = "colon"
 # can have ":" instead of equals sign
 # foo : "bar"

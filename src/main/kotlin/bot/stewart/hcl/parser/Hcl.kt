@@ -9,8 +9,8 @@ sealed class FileParseResult<out T> {
 }
 
 // TODO rename to what is in the readme
-object TerraformFileParser {
-    fun parseTfvarsFile(filePath: String): FileParseResult<Map<String, Any>> {
+object Hcl {
+    fun parse(filePath: String): FileParseResult<Map<String, Any>> {
         return try {
             val file = File(filePath)
             if (!file.exists()) {
