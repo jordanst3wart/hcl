@@ -82,11 +82,12 @@ class HclTest {
             assertEquals(true, result is FileParseResult.Success)
             result as FileParseResult.Success
             result.value.let { map ->
-                assertEquals(4, map.size)
+                assertEquals(5, map.size)
                 assertEquals("string", map["string"])
                 assertEquals(3, map["int"])
                 assertEquals(75.5, map["float"])
                 assertEquals(true, map["bool"])
+                assertEquals(null, map["null"])
             }
         }
     }

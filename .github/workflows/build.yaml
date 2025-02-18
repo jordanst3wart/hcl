@@ -26,6 +26,7 @@ jobs:
       - name: Test with Gradle
         run: ./gradlew test
 
+# TODO need priviliged CI to push to maven
 # if master push to maven
 #      - name: Publish to Maven
 #        if: github.ref == 'refs/heads/master'

@@ -15,7 +15,7 @@ sealed class FileParseResult<out T> {
 // TODO string contents...
 // TODO stream input
 object Hcl {
-    fun parse(file: File): FileParseResult<Map<String, Any>> {
+    fun parse(file: File): FileParseResult<Map<String, Any?>> {
         return try {
             if (!file.exists()) {
                 return FileParseResult.Error("File does not exist: ${file.absolutePath}")
@@ -31,7 +31,7 @@ object Hcl {
         }
     }
 
-    fun parse(content: String): FileParseResult<Map<String, Any>> {
+    fun parse(content: String): FileParseResult<Map<String, Any?>> {
         return try {
             val result = parseLines(content.lineSequence())
             FileParseResult.Success(result)
@@ -40,7 +40,7 @@ object Hcl {
         }
     }
 
-    fun parse(content: List<String>): FileParseResult<Map<String, Any>> {
+    fun parse(content: List<String>): FileParseResult<Map<String, Any?>> {
         return try {
             val result = parseLines(content.asSequence())
             FileParseResult.Success(result)
@@ -49,7 +49,7 @@ object Hcl {
         }
     }
 
-    fun parse(content: Sequence<String>): FileParseResult<Map<String, Any>> {
+    fun parse(content: Sequence<String>): FileParseResult<Map<String, Any?>> {
         return try {
             val result = parseLines(content)
             FileParseResult.Success(result)
@@ -58,8 +58,8 @@ object Hcl {
         }
     }
 
-    private fun parseLines(lines: Sequence<String>): Map<String, Any> {
-        val result = mutableMapOf<String, Any>()
+    private fun parseLines(lines: Sequence<String>): Map<String, Any?> {
+        val result = mutableMapOf<String, Any?>()
 
         lines.forEachIndexed { index, line ->
             try {
@@ -94,8 +94,9 @@ object Hcl {
     }
 
     // TODO could make this a sealed class
-    private fun parseValue(valueStr: String): Any {
+    private fun parseValue(valueStr: String): Any? {
         return when {
+            valueStr.equals("null", ignoreCase = false) -> null
             valueStr.equals("true", ignoreCase = false) -> true
             valueStr.equals("false", ignoreCase = false) -> false
             valueStr.toIntOrNull() != null -> valueStr.toInt()
