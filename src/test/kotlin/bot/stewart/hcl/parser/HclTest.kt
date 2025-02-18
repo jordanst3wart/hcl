@@ -30,6 +30,18 @@ class HclTest {
         }
     }
 
+    @ParameterizedTest(name = "comments are ignored {0}")
+    @ValueSource(strings = [
+        "# some comment",
+        "key = false # some comment",
+        "key = \"string\" # some comment",
+        "key = 1 # some comment"])
+    fun `ignores comments`(value: String) {
+        Hcl.parse(value).let { result ->
+            assertEquals(true, result is FileParseResult.Success)
+        }
+    }
+
     @Test
     fun `file doesn't exist`() {
         val doesntExist = File("doesntExist.tfvars")
