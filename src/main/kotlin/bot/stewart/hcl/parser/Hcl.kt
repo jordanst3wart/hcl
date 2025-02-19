@@ -1,118 +1,176 @@
 package bot.stewart.hcl.parser
 
 import java.io.File
+import java.io.FileNotFoundException
 
-// Version with error handling
-sealed class FileParseResult<out T> {
-    data class Success<T>(val value: T) : FileParseResult<T>()
-    data class Error(val message: String) : FileParseResult<Nothing>()
-}
+class Hcl {
+    private var position = 0
+    private var input = ""
 
-/*
-    * HCL Parser
-    * can read a file, string, or stream of strings, and converts it to a map of key-value pairs
- */
-// TODO string contents...
-// TODO stream input
-object Hcl {
-    fun parse(file: File): FileParseResult<Map<String, Any?>> {
-        return try {
-            if (!file.exists()) {
-                return FileParseResult.Error("File does not exist: ${file.absolutePath}")
-            }
-
-            // TODO check bufferedReader is needed
-            file.bufferedReader().useLines { lines ->
-                val result = parseLines(lines)
-                FileParseResult.Success(result)
-            }
-        } catch (e: Exception) {
-            FileParseResult.Error("Failed to parse file: ${e.message}")
+    // TODO should add Sequence<String> as input, or stream strings
+    fun parse(file: File): Map<String, Any?> {
+        if (!file.exists()) {
+            throw FileNotFoundException("File does not exist: ${file.absolutePath}")
         }
+        val text = file.readText()
+        return parse(text)
     }
 
-    fun parse(content: String): FileParseResult<Map<String, Any?>> {
-        return try {
-            val result = parseLines(content.lineSequence())
-            FileParseResult.Success(result)
-        } catch (e: Exception) {
-            FileParseResult.Error("Failed to parse file: ${e.message}")
-        }
-    }
-
-    fun parse(content: List<String>): FileParseResult<Map<String, Any?>> {
-        return try {
-            val result = parseLines(content.asSequence())
-            FileParseResult.Success(result)
-        } catch (e: Exception) {
-            FileParseResult.Error("Failed to parse file: ${e.message}")
-        }
-    }
-
-    fun parse(content: Sequence<String>): FileParseResult<Map<String, Any?>> {
-        return try {
-            val result = parseLines(content)
-            FileParseResult.Success(result)
-        } catch (e: Exception) {
-            FileParseResult.Error("Failed to parse file: ${e.message}")
-        }
-    }
-
-    private fun parseLines(lines: Sequence<String>): Map<String, Any?> {
+    fun parse(text: String): Map<String, Any?> {
+        input = text
+        position = 0
         val result = mutableMapOf<String, Any?>()
 
-        lines.forEachIndexed { index, line ->
-            try {
-                // Skip comments and empty lines
-                if (line.isBlank() || line.trimStart().startsWith("#")) {
-                    return@forEachIndexed
-                }
+        while (position < input.length) {
+            skipWhitespace()
+            if (position >= input.length) break
 
-                // Split on the first equals sign
-                // TODO will need to deal with ":" as well
-                val parts = line.split("=", limit = 2)
-                // TODO will error if multiple equals signs i.e "key = \"value = value\""
-                if (parts.size != 2) {
-                    return@forEachIndexed
-                }
-
-                val key = parts[0].trim()
-                val valueStr = parts[1].trim()
-
-                // Parse the value based on its format
-                val value = parseValue(valueStr)
-
-                if (key.isNotEmpty()) {
-                    result[key] = value
-                }
-            } catch (e: Exception) {
-                throw IllegalStateException("Error parsing line ${index + 1}: ${e.message}")
-            }
+            if (skipLineIfCommented()) continue
+            val key = parseKey()
+            skipWhitespace()
+            expect('=') // TODO Or ':'
+            skipWhitespace()
+            val value = parseValue()
+            result[key] = value
         }
 
         return result
     }
 
-    // TODO could make this a sealed class
-    private fun parseValue(valueStr: String): Any? {
+    private fun skipLineIfCommented(): Boolean {
+        if (input[position] == '#') {
+            while (position < input.length && input[position] != '\n') {
+                position++
+            }
+            return true
+        }
+        return false
+    }
+
+    private fun parseKey(): String {
+        val start = position
+        while (position < input.length && (input[position].isLetterOrDigit() || input[position] == '_')) {
+            position++
+        }
+        return input.substring(start, position)
+    }
+
+    private fun parseValue(): Any? {
         return when {
-            valueStr.equals("null", ignoreCase = false) -> null
-            valueStr.equals("true", ignoreCase = false) -> true
-            valueStr.equals("false", ignoreCase = false) -> false
-            valueStr.toIntOrNull() != null -> valueStr.toInt()
-            valueStr.toDoubleOrNull() != null -> valueStr.toDouble() // float???
-            valueStr.startsWith("\"") && valueStr.endsWith("\"") -> cleanString(valueStr)
-            else -> throw IllegalArgumentException("Unknown value type: $valueStr")
+            input[position] == '"' -> parseString()
+            input[position] == '{' -> parseObject()
+            input[position] == '[' -> parseList()
+            input[position].isDigit() || input[position] == '-' -> parseNumber()
+            input.substring(position).startsWith("null") -> {
+                position += 4
+                null
+            }
+            input.substring(position).startsWith("true") -> {
+                position += 4
+                true
+            }
+            input.substring(position).startsWith("false") -> {
+                position += 5
+                false
+            }
+            else -> throw IllegalStateException("Unexpected character at position $position: ${input[position]}")
         }
     }
 
-    private fun cleanString(valueStr: String): String {
-        return valueStr.trim().let {
-            if (it.startsWith("\"") && it.endsWith("\"")) {
-                it.substring(1, it.length - 1)
-            } else {
-                it
+    private fun parseString(): String {
+        expect('"')
+        val start = position
+        while (position < input.length && input[position] != '"') {
+            if (input[position] == '\\') position++
+            position++
+        }
+        val value = input.substring(start, position)
+        expect('"')
+        return value
+    }
+
+    private fun parseNumber(): Number {
+        val start = position
+        var hasDecimal = false
+
+        if (input[position] == '-') position++
+
+        while (position < input.length &&
+            (input[position].isDigit() || (!hasDecimal && input[position] == '.'))) {
+            if (input[position] == '.') hasDecimal = true
+            position++
+        }
+
+        val numStr = input.substring(start, position)
+        return if (hasDecimal) {
+            numStr.toDouble()
+        } else {
+            // maybe to long
+            numStr.toInt()
+        }
+    }
+
+    private fun parseList(): List<Any?> {
+        expect('[')
+        val values = mutableListOf<Any?>()
+
+        while (position < input.length && input[position] != ']') {
+            skipWhitespace()
+            if (input[position] == ']') break
+
+            values.add(parseValue())
+            skipWhitespace()
+
+            if (input[position] == ',') {
+                position++
             }
         }
+
+        expect(']')
+        return values
+    }
+
+    private fun parseObject(): Map<String, Any?> {
+        expect('{')
+        val properties = mutableMapOf<String, Any?>()
+
+        while (position < input.length && input[position] != '}') {
+            skipWhitespace()
+            if (input[position] == '}') break
+
+            val key = parseKey()
+            skipWhitespace()
+            expect('=')
+            skipWhitespace()
+            val value = parseValue()
+            properties[key] = value
+
+            skipWhitespace()
+            if (input[position] == ',') {
+                position++
+            }
+        }
+
+        expect('}')
+        return properties
+    }
+
+    private fun skipWhitespace() {
+        while (position < input.length && input[position].isWhitespace()) {
+            position++
+        }
+    }
+
+    private fun expect(char: Char) {
+        if (position >= input.length || input[position] != char) {
+            throw IllegalStateException("Expected '$char' at position $position, surrounding characters: ${getSurroundingCharacters(input, position)}")
+        }
+        position++
+    }
+
+    private fun getSurroundingCharacters(input: String, position: Int, range: Int = 2): String {
+        val before = if (position - range >= 0) input.substring(position - range, position) else ""
+        val after = if (position + range < input.length) input.substring(position + 1, position + 1 + range) else ""
+        return before + after
     }
 }
