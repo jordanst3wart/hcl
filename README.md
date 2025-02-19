@@ -1,4 +1,5 @@
-A jdk library to parse, and write HCL variable files. HCL is a configuration language used by HashiCorp tools like Terraform, Consul, and Vault.
+## Tfvars
+A jdk library to parse, and write HCL variable files (does not have variable support). HCL is a configuration language used by HashiCorp tools like Terraform, Consul, Packer, and Vault.
 
 ## Usage
 
@@ -24,19 +25,16 @@ variables.put("region", Map.of("default", "us-west-1"));
 String hcl = Hcl.write(variables);
 ```
 
-### Reading and Writing from streams
-
-TODO
-
 ### Support
 
 - [x] Parsing HCL variables
 - [x] Writing HCL variables
 - [ ] Reading, and writing from POJOs
+- [ ] streaming string inputs, and outputs (for large files)
 
 Doesn't aim to look reading for_each loops, modules, or variable substitution. Ignores comments in `tfvars` files.
 
-### v2
+### Future
 Reading, and writing from POJOs maybe supported in the future, like:
 
 ```java
