@@ -38,6 +38,56 @@ class HclTest {
     }
 
     @Test
+    fun `wrong boolean`() {
+        assertFailsWith<IllegalStateException> {
+            parser.parse("key = FaLse")
+        }
+    }
+
+    @Test
+    fun `wrong boolean again`() {
+        assertFailsWith<IllegalStateException> {
+            parser.parse("key = False")
+        }
+    }
+
+    @Test
+    fun `not quoted fails`() {
+        assertFailsWith<IllegalStateException> {
+            parser.parse("key = 'single_quoted'")
+        }
+    }
+
+    @Test
+    fun `single quoted fails`() {
+        assertFailsWith<IllegalStateException> {
+            parser.parse("key = not_quoted")
+        }
+    }
+
+    @Test
+    fun `wrong key`() {
+        assertFailsWith<IllegalStateException> {
+            parser.parse("3a = \"string\"")
+        }
+    }
+    /* other invalid keys to test
+        # symbols
+        my@var = "invalid"
+        special#name = "invalid"
+        dollar$sign = "invalid"
+        "my variable" = "invalid"
+        space name = "invalid"
+        # reserved words
+        source = "invalid"
+        module = "invalid"
+        count = "invalid"
+        TODO check these
+        _hidden = "invalid"
+        __name = "invalid"
+     */
+
+    @Test
     fun `no whitespace`() {
         parser.parse("a=false").let { result ->
             assertEquals(result["a"], false)
@@ -54,15 +104,6 @@ class HclTest {
     @Test
     fun `whitespace before key`() {
         assertEquals(parser.parse("    a=false")["a"], false)
-    }
-
-    // parsing keys failed cases
-    // TODO this should fail, key name is invalid
-    @Test
-    fun `key cannot start with letter or symbol`() {
-        parser.parse("3a = false").let { result ->
-            assertEquals(false, result["3a"])
-        }
     }
 
     @ParameterizedTest(name = "comments are ignored {0}")
@@ -137,6 +178,73 @@ class HclTest {
                 assertEquals(75.5, map["float"])
                 assertEquals(true, map["bool"])
                 assertEquals(null, map["null"])
+            }
+        }
+    }
+
+    @Test
+    fun `parse lists`() {
+        val lists = this::class.java.getResourceAsStream("/lists.tfvars")?.bufferedReader()?.readText()!!
+        parser.parse(lists).let { result ->
+            result.let { map ->
+                assertEquals(4, map.size)
+                assertEquals(listOf(80, 443, 8080), map["allowed_ports"])
+                assertEquals(listOf("us-west-2a", "us-west-2b", "us-west-2c"), map["availability_zones"])
+                assertEquals(listOf(true, false, true), map["boolean_values"])
+                assertEquals(listOf(1, "two", true), map["mixed_values"])
+            }
+        }
+    }
+
+    // TODO test duplicate keys
+    /*
+    foo = true
+    foo = false
+     */
+    @Test
+    fun `parse heredoc`() {
+        val heredoc = this::class.java.getResourceAsStream("/heredoc.tfvars")?.bufferedReader()?.readText()!!
+        parser.parse(heredoc).let { result ->
+            result.let { map ->
+                assertEquals(2, map.size)
+                assertEquals("#!/bin/bash\n" +
+                        "echo \"Hello, World!\"\n" +
+                        "yum update -y\n" +
+                        "yum install -y httpd\n" +
+                        "systemctl start httpd\n" +
+                        "systemctl enable httpd\n", map["user_data2"])
+                // TODO indented heredoc
+                /*assertEquals("#!/bin/bash\n" +
+                        "echo \"Hello, World!\"\n" +
+                        "yum update -y\n" +
+                        "yum install -y httpd\n" +
+                        "systemctl start httpd\n" +
+                        "systemctl enable httpd\n", map["user_data"])
+                */
+            }
+        }
+    }
+
+    @Test
+    fun `parse list of objects`() {
+        val heredoc = this::class.java.getResourceAsStream("/list_objects.tfvars")?.bufferedReader()?.readText()!!
+        parser.parse(heredoc).let { result ->
+            result.let { map ->
+                assertEquals(1, map.size)
+                map["subnet_configs"].let { list ->
+                    assertEquals(true, list is List<*>)
+                    list as List<Map<String, Any?>>
+                    assertEquals(2, list.size)
+                    val expected : List<Map<String, Any?>> = listOf(mapOf("name" to "public-1",
+                                 "cidr_block" to "10.0.1.0/24",
+                                 "is_public" to true,
+                                 "route_table" to "public"),
+                            mapOf("name" to "private-1",
+                                    "cidr_block" to "10.0.2.0/24",
+                                    "is_public" to false,
+                                    "route_table" to "private"))
+                    assertEquals(expected, list)
+                }
             }
         }
     }

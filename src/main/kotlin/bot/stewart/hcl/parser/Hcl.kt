@@ -49,10 +49,17 @@ class Hcl {
 
     private fun parseKey(): String {
         val start = position
+        assertValidKey(input[position].toString())
         while (position < input.length && (input[position].isLetterOrDigit() || input[position] == '_')) {
             position++
         }
         return input.substring(start, position)
+    }
+
+    private fun assertValidKey(key: String) {
+        if (input.isNotEmpty() && key[0].isDigit()) {
+            throw IllegalStateException("Key cannot start with a digit")
+        }
     }
 
     private fun parseValue(): Any? {
@@ -72,6 +79,12 @@ class Hcl {
             input.substring(position).startsWith("false") -> {
                 position += 5
                 false
+            }
+            input.substring(position).startsWith("<<-") -> {
+                parseHeredoc(isIndented = true)
+            }
+            input.substring(position).startsWith("<<") -> {
+                parseHeredoc(isIndented = false)
             }
             else -> throw IllegalStateException("Unexpected character at position $position: ${input[position]}")
         }
@@ -172,5 +185,86 @@ class Hcl {
         val before = if (position - range >= 0) input.substring(position - range, position) else ""
         val after = if (position + range < input.length) input.substring(position + 1, position + 1 + range) else ""
         return before + after
+    }
+
+    private fun parseHeredoc(isIndented: Boolean): String {
+        // Skip '<<' or '<<-'
+        position += if (isIndented) 3 else 2
+
+        // Read marker (e.g., 'EOF', 'POLICY', etc.)
+        val markerStart = position
+        while (position < input.length && !input[position].isWhitespace()) {
+            position++
+        }
+        val marker = input.substring(markerStart, position)
+
+        // Skip to next line
+        while (position < input.length && input[position] != '\n') {
+            position++
+        }
+        position++ // Skip the newline
+
+        // Read content until we find the marker
+        val contentStart = position
+        var contentEnd = -1
+        var baseIndentation = -1
+
+        while (position < input.length) {
+            // Check if this line is the end marker
+            val lineStart = position
+
+            // For indented heredoc, calculate base indentation from marker line
+            if (isIndented) {
+                var spaces = 0
+                while (position < input.length && input[position].isWhitespace() && input[position] != '\n') {
+                    spaces++
+                    position++
+                }
+                var isMarker = true
+                for (i in marker.indices) {
+                    if (position + i >= input.length || input[position + i] != marker[i]) {
+                        isMarker = false
+                        break
+                    }
+                }
+
+                if (isMarker) {
+                    baseIndentation = spaces
+                    contentEnd = lineStart
+                    position += marker.length
+                    break
+                }
+            } else {
+                // For standard heredoc, marker must be at start of line
+                if (input.substring(position).startsWith(marker)) {
+                    contentEnd = lineStart
+                    position += marker.length
+                    break
+                }
+            }
+
+            // Move to next line
+            while (position < input.length && input[position] != '\n') {
+                position++
+            }
+            position++ // Skip the newline
+        }
+
+        if (contentEnd == -1) {
+            throw IllegalStateException("Heredoc marker '$marker' not found")
+        }
+
+        // Process the content
+        val content = input.substring(contentStart, contentEnd)
+
+        return if (isIndented && baseIndentation >= 0) {
+            // For indented heredoc, remove common indentation
+            content.split('\n').map { line ->
+                if (line.isBlank()) line else line.substring(minOf(baseIndentation, line.indexOfFirst { !it.isWhitespace() }.takeIf { it >= 0 } ?: baseIndentation))
+            }.joinToString("\n")
+        } else {
+            // For standard heredoc, return content as-is
+            content
+        }
     }
 }

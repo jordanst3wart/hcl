@@ -57,3 +57,10 @@ class Region {
 String hcl = "region = {\n  default = \"us-west-1\"\n};
 Map<String, Region> parsedVariables = Hcl.marshal(hcl, Region.class);
 ```
+
+### Spec
+HCL spec (alhtough not formal) is here:
+https://github.com/hashicorp/hcl/blob/main/hclsyntax/spec.md
+
+### License
+MIT license
