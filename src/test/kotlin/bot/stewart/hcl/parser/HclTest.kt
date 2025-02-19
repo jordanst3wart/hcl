@@ -19,22 +19,6 @@ class HclTest {
             val foo = result["key"]
             assertEquals("value", foo)
         }
-        // TODO fix
-        /*Hcl.parse("key = not_quoted").let { result ->
-            assertEquals(true, result is FileParseResult.Error)
-        }
-        Hcl.parse("key = 'single_quoted'").let { result ->
-            assertEquals(true, result is FileParseResult.Error)
-        }
-        Hcl.parse("key = FaLse").let { result ->
-            assertEquals(true, result is FileParseResult.Error)
-        }
-        Hcl.parse("key = False").let { result ->
-            assertEquals(true, result is FileParseResult.Error)
-        }
-        Hcl.parse("3a = False").let { result ->
-            assertEquals(true, result is FileParseResult.Error)
-        }*/
     }
 
     @Test
