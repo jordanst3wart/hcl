@@ -7,6 +7,7 @@ systemctl start httpd
 systemctl enable httpd
 FOO
 
+# TODO: This is not supported by the parser
 # String with heredoc syntax
 user_data = <<-EOF
   #!/bin/bash

@@ -3,7 +3,7 @@ package bot.stewart.hcl
 import java.io.File
 
 object HclWriter {
-    private val StringBuilder.indentUnit: String
+    private val indentUnit: String
         get() = "  "
 
     fun write(input: Map<String, Any?>): String {

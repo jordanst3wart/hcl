@@ -1,4 +1,4 @@
-package bot.stewart.hcl.parser
+package bot.stewart.hcl
 
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -10,8 +10,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class HclTest {
-    private var parser: Hcl = Hcl()
+class HclParserTest {
+    private var parser: HclParser = HclParser()
 
     // TODO change to list
     @Test
