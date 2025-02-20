@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "bot.stewart"
-version = "1.0-SNAPSHOT"
+version = "0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -12,6 +12,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.4")
+    implementation(kotlin("reflect"))
 }
 
 tasks.test {

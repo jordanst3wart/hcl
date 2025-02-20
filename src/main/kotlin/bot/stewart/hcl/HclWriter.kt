@@ -1,6 +1,7 @@
 package bot.stewart.hcl
 
 import java.io.File
+import kotlin.reflect.KProperty1
 
 object HclWriter {
     private val indentUnit: String
@@ -18,6 +19,38 @@ object HclWriter {
         }.toString()
         return File(path).apply {
             writeText(string)
+        }
+    }
+
+    fun write(obj: Any): String {
+        return StringBuilder().apply {
+            writeObject(obj, 0)
+        }.toString()
+    }
+
+    fun write(obj: Any, path: String): File {
+        val string = StringBuilder().apply {
+            writeObject(obj, 0)
+        }.toString()
+        return File(path).apply {
+            writeText(string)
+        }
+    }
+
+    private fun StringBuilder.writeObject(obj: Any, indent: Int) {
+        val properties = obj::class.members
+            .filterIsInstance<KProperty1<Any, *>>()
+            .sortedBy { it.name }
+
+        properties.forEach { prop ->
+            val value = prop.get(obj)
+            if (value != null || !prop.returnType.isMarkedNullable) {
+                writeIndent(indent)
+                append(prop.name)
+                append(" = ")
+                writeValue(value, indent)
+                append("\n")
+            }
         }
     }
 
@@ -45,7 +78,15 @@ object HclWriter {
                 writeIndent(indent)
                 append("}")
             }
-            else -> throw IllegalArgumentException("Unsupported type: ${value::class.java}")
+            else -> when {
+                value::class.isData -> {
+                    append("{\n")
+                    writeObject(value, indent + 1)
+                    writeIndent(indent)
+                    append("}")
+                }
+                else -> throw IllegalArgumentException("Unsupported type: ${value::class.java}")
+            }
         }
     }
 

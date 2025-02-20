@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
 class HclParserTest {
     private var parser: HclParser = HclParser()
 
-    // TODO change to list
     @Test
     fun `parse success and failure`() {
         parser.parse("key = \"value\"").let { result ->
