@@ -1,9 +1,9 @@
-package bot.stewart.hcl.parser
+package bot.stewart.hcl
 
 import java.io.File
 import java.io.FileNotFoundException
 
-class Hcl {
+class HclParser {
     private var position = 0
     private var input = ""
 
@@ -129,8 +129,9 @@ class Hcl {
 
         while (position < input.length && input[position] != ']') {
             skipWhitespace()
+            skipLineIfCommented() // skipping to next line if commented, and skipping white space
+            skipWhitespace()
             if (input[position] == ']') break
-
             values.add(parseValue())
             skipWhitespace()
 
@@ -151,6 +152,7 @@ class Hcl {
             skipWhitespace()
             if (input[position] == '}') break
 
+            if (skipLineIfCommented()) continue
             val key = parseKey()
             skipWhitespace()
             expect('=')
