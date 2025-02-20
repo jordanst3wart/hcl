@@ -1,4 +1,4 @@
-## Tfvars
+## Hcl
 A jdk library to parse, and write HCL variable files (does not have variable support). HCL is a configuration language used by HashiCorp tools like Terraform, Consul, Packer, and Vault.
 
 ## Usage
