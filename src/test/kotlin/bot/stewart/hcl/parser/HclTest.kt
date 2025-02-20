@@ -7,6 +7,7 @@ import java.io.FileNotFoundException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class HclTest {
@@ -228,6 +229,128 @@ class HclTest {
                                     "is_public" to false,
                                     "route_table" to "private"))
                     assertEquals(expected, list)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `parse map objects`() {
+        val mapObjects = this::class.java.getResourceAsStream("/map_objects.tfvars")?.bufferedReader()?.readText()!!
+        parser.parse(mapObjects).let { result ->
+            result.let { map ->
+                assertEquals(1, map.size)
+                map["tags"].let { tags ->
+                    assertEquals(true, tags is Map<*, *>)
+                    tags as Map<String, String>
+                    assertEquals(4, tags.size)
+                    assertEquals("production", tags["Environment"])
+                    assertEquals("platform", tags["Team"])
+                    assertEquals("operations", tags["Owner"])
+                    assertEquals("12345", tags["CostCenter"])
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `parse map of lists`() {
+        val mapOfLists = this::class.java.getResourceAsStream("/map_of_lists.tfvars")?.bufferedReader()?.readText()!!
+        parser.parse(mapOfLists).let { result ->
+            result.let { map ->
+                assertEquals(1, map.size)
+                map["security_groups"].let { securityGroups ->
+                    assertEquals(true, securityGroups is Map<*, *>)
+                    securityGroups as Map<String, List<String>>
+                    assertEquals(3, securityGroups.size)
+
+                    assertEquals(listOf("80", "443"), securityGroups["web"])
+                    assertEquals(listOf("8080", "8443"), securityGroups["app"])
+                    assertEquals(listOf("5432", "27017"), securityGroups["db"])
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `parse nested maps`() {
+        val nestedMaps = this::class.java.getResourceAsStream("/nested_maps.tfvars")?.bufferedReader()?.readText()!!
+        parser.parse(nestedMaps).let { result ->
+            result.let { map ->
+                assertEquals(1, map.size)
+                map["instance_settings"].let { instanceSettings ->
+                    assertEquals(true, instanceSettings is Map<*, *>)
+                    instanceSettings as Map<String, Map<String, Int>>
+                    assertEquals(3, instanceSettings.size)
+
+                    instanceSettings["small"].let { small ->
+                        assertNotNull(small)
+                        assertEquals(3, small.size)
+                        assertEquals(2, small["cpu"])
+                        assertEquals(4, small["memory"])
+                        assertEquals(50, small["disk"])
+                    }
+
+                    instanceSettings["medium"].let { medium ->
+                        assertNotNull(medium)
+                        assertEquals(3, medium.size)
+                        assertEquals(4, medium["cpu"])
+                        assertEquals(8, medium["memory"])
+                        assertEquals(100, medium["disk"])
+                    }
+
+                    instanceSettings["large"].let { large ->
+                        assertNotNull(large)
+                        assertEquals(3, large.size)
+                        assertEquals(8, large["cpu"])
+                        assertEquals(16, large["memory"])
+                        assertEquals(200, large["disk"])
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `parse complex nested structure`() {
+        val nestedStructure = this::class.java.getResourceAsStream("/nested_structure.tfvars")?.bufferedReader()?.readText()!!
+        parser.parse(nestedStructure).let { result ->
+            result.let { map ->
+                assertEquals(1, map.size)
+                map["application_config"].let { appConfig ->
+                    assertEquals(true, appConfig is Map<*, *>)
+                    appConfig as Map<String, Map<String, Any>>
+                    assertEquals(2, appConfig.size)
+
+                    appConfig["frontend"].let { frontend ->
+                        assertNotNull(frontend)
+                        assertEquals(4, frontend.size)
+                        assertEquals(2, frontend["instances"])
+                        assertEquals("t3.medium", frontend["size"])
+                        assertEquals(listOf("us-west-2a", "us-west-2b"), frontend["zones"])
+
+                        (frontend["scaling"] as Map<String, Int>).let { scaling ->
+                            assertEquals(3, scaling.size)
+                            assertEquals(1, scaling["min"])
+                            assertEquals(5, scaling["max"])
+                            assertEquals(2, scaling["desired"])
+                        }
+                    }
+
+                    appConfig["backend"].let { backend ->
+                        assertNotNull(backend)
+                        assertEquals(4, backend.size)
+                        assertEquals(3, backend["instances"])
+                        assertEquals("t3.large", backend["size"])
+                        assertEquals(listOf("us-west-2a", "us-west-2b", "us-west-2c"), backend["zones"])
+
+                        (backend["scaling"] as Map<String, Int>).let { scaling ->
+                            assertEquals(3, scaling.size)
+                            assertEquals(2, scaling["min"])
+                            assertEquals(6, scaling["max"])
+                            assertEquals(3, scaling["desired"])
+                        }
+                    }
                 }
             }
         }
