@@ -15,10 +15,14 @@ object HclWriter {
     }
 
     @JvmStatic
-    fun write(input: Map<String, Any?>, path: String): File {
-        val string = StringBuilder().apply {
-            writeMap(input, 0)
-        }.toString()
+    fun write(
+        input: Map<String, Any?>,
+        path: String,
+    ): File {
+        val string =
+            StringBuilder().apply {
+                writeMap(input, 0)
+            }.toString()
         return File(path).apply {
             writeText(string)
         }
@@ -32,19 +36,27 @@ object HclWriter {
     }
 
     @JvmStatic
-    fun write(obj: Any, path: String): File {
-        val string = StringBuilder().apply {
-            writeObject(obj, 0)
-        }.toString()
+    fun write(
+        obj: Any,
+        path: String,
+    ): File {
+        val string =
+            StringBuilder().apply {
+                writeObject(obj, 0)
+            }.toString()
         return File(path).apply {
             writeText(string)
         }
     }
 
-    private fun StringBuilder.writeObject(obj: Any, indent: Int) {
-        val properties = obj::class.members
-            .filterIsInstance<KProperty1<Any, *>>()
-            .sortedBy { it.name }
+    private fun StringBuilder.writeObject(
+        obj: Any,
+        indent: Int,
+    ) {
+        val properties =
+            obj::class.members
+                .filterIsInstance<KProperty1<Any, *>>()
+                .sortedBy { it.name }
 
         properties.forEach { prop ->
             val value = prop.get(obj)
@@ -58,7 +70,10 @@ object HclWriter {
         }
     }
 
-    private fun StringBuilder.writeMap(map: Map<String, Any?>, indent: Int) {
+    private fun StringBuilder.writeMap(
+        map: Map<String, Any?>,
+        indent: Int,
+    ) {
         map.forEach { (key, value) ->
             writeIndent(indent)
             append(key)
@@ -68,7 +83,10 @@ object HclWriter {
         }
     }
 
-    private fun StringBuilder.writeValue(value: Any?, indent: Int) {
+    private fun StringBuilder.writeValue(
+        value: Any?,
+        indent: Int,
+    ) {
         when (value) {
             null -> append("null")
             is String -> append("\"${value.escape()}\"")
@@ -82,19 +100,23 @@ object HclWriter {
                 writeIndent(indent)
                 append("}")
             }
-            else -> when {
-                value::class.isData -> {
-                    append("{\n")
-                    writeObject(value, indent + 1)
-                    writeIndent(indent)
-                    append("}")
+            else ->
+                when {
+                    value::class.isData -> {
+                        append("{\n")
+                        writeObject(value, indent + 1)
+                        writeIndent(indent)
+                        append("}")
+                    }
+                    else -> throw IllegalArgumentException("Unsupported type: ${value::class.java}")
                 }
-                else -> throw IllegalArgumentException("Unsupported type: ${value::class.java}")
-            }
         }
     }
 
-    private fun StringBuilder.writeList(list: List<*>, indent: Int) {
+    private fun StringBuilder.writeList(
+        list: List<*>,
+        indent: Int,
+    ) {
         if (list.isEmpty()) {
             append("[]")
             return

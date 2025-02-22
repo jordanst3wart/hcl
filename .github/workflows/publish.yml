@@ -1,11 +1,13 @@
-name: Gradle Build and Test
+name: Publish to Maven
 
 on:
-  push:
-    branches: [ "**" ]
+  pull_request:
+    types: [closed]
+    branches: ["main"]
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +23,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Build and test with Gradle
-        run: ./gradlew clean check assemble
+        run: ./gradlew clean build test assemble publish jreleaserFullRelease
 
 # TODO need priviliged CI to push to maven
 # if master push to maven

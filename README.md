@@ -56,3 +56,5 @@ https://github.com/hashicorp/hcl/blob/main/hclsyntax/spec.md
 
 ### License
 MIT license
+
+If you don't want to add a dependency this library is currently just two kotlin files. You can copy them into your project.

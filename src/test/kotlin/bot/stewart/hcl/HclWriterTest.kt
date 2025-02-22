@@ -4,39 +4,42 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class HclWriterTest {
-
     @Test
     fun `write basic values`() {
-        val input = mapOf(
-            "string" to "value",
-            "number" to 42,
-            "float" to 3.14,
-            "boolean" to true,
-            "null" to null
-        )
+        val input =
+            mapOf(
+                "string" to "value",
+                "number" to 42,
+                "float" to 3.14,
+                "boolean" to true,
+                "null" to null,
+            )
 
-        val expected = """
+        val expected =
+            """
             string = "value"
             number = 42
             float = 3.14
             boolean = true
             null = null
             
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(expected, HclWriter.write(input))
     }
 
     @Test
     fun `write lists`() {
-        val input = mapOf(
-            "empty_list" to emptyList<String>(),
-            "strings" to listOf("a", "b", "c"),
-            "numbers" to listOf(1, 2, 3),
-            "mixed" to listOf("string", 42, true)
-        )
+        val input =
+            mapOf(
+                "empty_list" to emptyList<String>(),
+                "strings" to listOf("a", "b", "c"),
+                "numbers" to listOf(1, 2, 3),
+                "mixed" to listOf("string", 42, true),
+            )
 
-        val expected = """
+        val expected =
+            """
             empty_list = []
             strings = [
               "a",
@@ -54,49 +57,57 @@ class HclWriterTest {
               true,
             ]
             
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(expected, HclWriter.write(input))
     }
 
     @Test
     fun `write maps`() {
-        val input = mapOf(
-            "tags" to mapOf(
-                "Environment" to "production",
-                "Team" to "platform"
+        val input =
+            mapOf(
+                "tags" to
+                    mapOf(
+                        "Environment" to "production",
+                        "Team" to "platform",
+                    ),
             )
-        )
 
-        val expected = """
+        val expected =
+            """
             tags = {
               Environment = "production"
               Team = "platform"
             }
             
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(expected, HclWriter.write(input))
     }
 
     @Test
     fun `write nested structure`() {
-        val input = mapOf(
-            "application_config" to mapOf(
-                "frontend" to mapOf(
-                    "instances" to 2,
-                    "size" to "t3.medium",
-                    "zones" to listOf("us-west-2a", "us-west-2b"),
-                    "scaling" to mapOf(
-                        "min" to 1,
-                        "max" to 5,
-                        "desired" to 2
-                    )
-                )
+        val input =
+            mapOf(
+                "application_config" to
+                    mapOf(
+                        "frontend" to
+                            mapOf(
+                                "instances" to 2,
+                                "size" to "t3.medium",
+                                "zones" to listOf("us-west-2a", "us-west-2b"),
+                                "scaling" to
+                                    mapOf(
+                                        "min" to 1,
+                                        "max" to 5,
+                                        "desired" to 2,
+                                    ),
+                            ),
+                    ),
             )
-        )
 
-        val expected = """
+        val expected =
+            """
             application_config = {
               frontend = {
                 instances = 2
@@ -113,21 +124,23 @@ class HclWriterTest {
               }
             }
             
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(expected, HclWriter.write(input))
     }
 
     @Test
     fun `write escaped strings`() {
-        val input = mapOf(
-            "escaped" to "line1\nline2\t\"quoted\""
-        )
+        val input =
+            mapOf(
+                "escaped" to "line1\nline2\t\"quoted\"",
+            )
 
-        val expected = """
+        val expected =
+            """
             escaped = "line1\nline2\t\"quoted\""
             
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(expected, HclWriter.write(input))
     }
