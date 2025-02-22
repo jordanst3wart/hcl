@@ -17,7 +17,7 @@ plugins {
 // https://github.com/NJAldwin/jvm-library-template
 
 group = "bot.stewart"
-version = "0.1.1"
+version = "0.2.1"
 
 val repoName = "hcl"
 val repoDescription = "A HCL parser and writer for tfvar files"
