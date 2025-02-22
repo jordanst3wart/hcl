@@ -34,3 +34,6 @@ jobs:
 #        env:
 #          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
 #          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+
+
+# https://jreleaser.org/guide/latest/continuous-integration/github-actions.html

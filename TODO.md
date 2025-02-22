@@ -11,3 +11,7 @@ https://www.json.org/json-en.html
 
 Informal spec:
 https://github.com/hashicorp/hcl/blob/main/hclsyntax/spec.md
+
+upload key to ubuntu
+// gpg --keyserver keyserver.ubuntu.com --send-keys ...
+// https://central.sonatype.com/publishing/deployments
