@@ -4,6 +4,8 @@
 - change api
 - allow use of POJOs
 - allow use of streams
+- ktlint
+- indented heredoc 
 
 
 similar example to json...

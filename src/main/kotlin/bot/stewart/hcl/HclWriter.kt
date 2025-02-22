@@ -7,12 +7,14 @@ object HclWriter {
     private val indentUnit: String
         get() = "  "
 
+    @JvmStatic
     fun write(input: Map<String, Any?>): String {
         return StringBuilder().apply {
             writeMap(input, 0)
         }.toString()
     }
 
+    @JvmStatic
     fun write(input: Map<String, Any?>, path: String): File {
         val string = StringBuilder().apply {
             writeMap(input, 0)
@@ -22,12 +24,14 @@ object HclWriter {
         }
     }
 
+    @JvmStatic
     fun write(obj: Any): String {
         return StringBuilder().apply {
             writeObject(obj, 0)
         }.toString()
     }
 
+    @JvmStatic
     fun write(obj: Any, path: String): File {
         val string = StringBuilder().apply {
             writeObject(obj, 0)
