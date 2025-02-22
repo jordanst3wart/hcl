@@ -1,12 +1,8 @@
 import org.jreleaser.model.Active
 
-// publish it:
-// ./gradlew jreleaserFullRelease
-
 plugins {
     kotlin("jvm") version "2.1.10"
-    // TODO use ktlint plugin
-    // id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
     `maven-publish`
     signing
     id("org.jreleaser") version "1.16.0"
@@ -17,7 +13,7 @@ plugins {
 // https://github.com/NJAldwin/jvm-library-template
 
 group = "bot.stewart"
-version = "0.2.1"
+version = "0.2.0"
 
 val repoName = "hcl"
 val repoDescription = "A HCL parser and writer for tfvar files"
@@ -59,8 +55,8 @@ tasks.withType<Jar> {
         attributes(
             mapOf(
                 "Implementation-Title" to project.name,
-                "Implementation-Version" to project.version
-            )
+                "Implementation-Version" to project.version,
+            ),
         )
     }
 }
@@ -69,7 +65,7 @@ tasks.named("jreleaserFullRelease") {
     dependsOn("publish")
 }
 
-// hack to create directory
+// hack to create directory for jreleaser
 tasks.named("publish") {
     doFirst {
         val outputDir = layout.buildDirectory.dir("jreleaser").get().asFile
@@ -79,68 +75,6 @@ tasks.named("publish") {
     }
 }
 
-/*
-publishing {
-    publications {
-        create<MavenPublication>("mavenKotlin") {
-            from(components["java"])
-
-            pom {
-                name.set("hcl")
-                description.set("A HCL parser and writer for tfvar files")
-                url.set("https://github.com/jordanst3wart/hcl")
-
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("jordanst3wart")
-                        name.set("Jordan Stewart")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/jordanst3wart/hcl.git")
-                    // I don't feel like this should be needed
-                    developerConnection.set("scm:git:ssh://github.com/jordanst3wart/hcl.git")
-                    url.set("https://github.com/jordanst3wart/hcl")
-                }
-
-                versionMapping {
-                    usage("java-api") {
-                        fromResolutionOf("runtimeClasspath")
-                    }
-                    usage("java-runtime") {
-                        fromResolutionResult()
-                    }
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            url = uri(
-                if (version.toString().endsWith("SNAPSHOT")) {
-                    "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                } else {
-                    "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                }
-            )
-
-            credentials {
-                // TODO make environment variables
-                username = project.findProperty("ossrhUsername") as String?
-                password = project.findProperty("ossrhPassword") as String?
-            }
-        }
-    }
-}*/
 publishing {
     publications {
         create<MavenPublication>("maven") {
@@ -185,14 +119,6 @@ publishing {
         }
     }
 }
-
-// had to export keys...
-// gpg --keyring secring.gpg --export-secret-keys > ~/.gnupg/secring.gpg
-// https://central.sonatype.org/publish/publish-portal-gradle/
-// https://central.sonatype.com/api/auth/login
-/*signing {
-    sign(publishing.publications["mavenKotlin"])
-}*/
 
 jreleaser {
     // dryrun.set(System.getenv("CI").isNullOrBlank())
@@ -272,11 +198,4 @@ jreleaser {
         # maven token, or password
         JRELEASER_MAVENCENTRAL_TOKEN: ${{ secrets.JRELEASER_MAVENCENTRAL_TOKEN }}
         JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.JRELEASER_MAVENCENTRAL_USERNAME }}
- */
-// ./gradlew --stacktrace assemble publish jreleaserFullRelease
-
-/*
-push git snapshots
-git tag 0.1-SNAPSHOT
-git push origin :refs/tags/0.1-SNAPSHOT
  */

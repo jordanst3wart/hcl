@@ -91,11 +91,14 @@ class HclParserTest {
     }
 
     @ParameterizedTest(name = "comments are ignored {0}")
-    @ValueSource(strings = [
-        "key = null # some comment",
-        "key = false # some comment",
-        "key = \"string\" # some comment",
-        "key = 1 # some comment"])
+    @ValueSource(
+        strings = [
+            "key = null # some comment",
+            "key = false # some comment",
+            "key = \"string\" # some comment",
+            "key = 1 # some comment",
+        ],
+    )
     fun `ignores comments`(value: String) {
         parser.parse(value).let { result ->
             assertEquals(1, result.size)
@@ -180,10 +183,10 @@ class HclParserTest {
         }
     }
 
-    // TODO test duplicate keys
     /*
-    foo = true
-    foo = false
+     * TODO test duplicate keys
+     * foo = true
+     * foo = false
      */
     @Test
     fun `parse heredoc`() {
@@ -191,20 +194,24 @@ class HclParserTest {
         parser.parse(heredoc).let { result ->
             result.let { map ->
                 assertEquals(2, map.size)
-                assertEquals("#!/bin/bash\n" +
+                assertEquals(
+                    "#!/bin/bash\n" +
                         "echo \"Hello, World!\"\n" +
                         "yum update -y\n" +
                         "yum install -y httpd\n" +
                         "systemctl start httpd\n" +
-                        "systemctl enable httpd\n", map["user_data2"])
-                // TODO indented heredoc
-                /*assertEquals("#!/bin/bash\n" +
-                        "echo \"Hello, World!\"\n" +
-                        "yum update -y\n" +
-                        "yum install -y httpd\n" +
-                        "systemctl start httpd\n" +
-                        "systemctl enable httpd\n", map["user_data"])
-                */
+                        "systemctl enable httpd\n",
+                    map["user_data2"],
+                )
+
+                /* TODO indented heredoc
+                 *   assertEquals("#!/bin/bash\n" +
+                 *       "echo \"Hello, World!\"\n" +
+                 *       "yum update -y\n" +
+                 *       "yum install -y httpd\n" +
+                 *       "systemctl start httpd\n" +
+                 *       "systemctl enable httpd\n", map["user_data"])
+                 */
             }
         }
     }
@@ -219,14 +226,21 @@ class HclParserTest {
                     assertEquals(true, list is List<*>)
                     list as List<Map<String, Any?>>
                     assertEquals(2, list.size)
-                    val expected : List<Map<String, Any?>> = listOf(mapOf("name" to "public-1",
-                                 "cidr_block" to "10.0.1.0/24",
-                                 "is_public" to true,
-                                 "route_table" to "public"),
-                            mapOf("name" to "private-1",
-                                    "cidr_block" to "10.0.2.0/24",
-                                    "is_public" to false,
-                                    "route_table" to "private"))
+                    val expected: List<Map<String, Any?>> =
+                        listOf(
+                            mapOf(
+                                "name" to "public-1",
+                                "cidr_block" to "10.0.1.0/24",
+                                "is_public" to true,
+                                "route_table" to "public",
+                            ),
+                            mapOf(
+                                "name" to "private-1",
+                                "cidr_block" to "10.0.2.0/24",
+                                "is_public" to false,
+                                "route_table" to "private",
+                            ),
+                        )
                     assertEquals(expected, list)
                 }
             }

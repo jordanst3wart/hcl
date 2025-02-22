@@ -109,7 +109,8 @@ class HclParser {
         if (input[position] == '-') position++
 
         while (position < input.length &&
-            (input[position].isDigit() || (!hasDecimal && input[position] == '.'))) {
+            (input[position].isDigit() || (!hasDecimal && input[position] == '.'))
+        ) {
             if (input[position] == '.') hasDecimal = true
             position++
         }
@@ -178,12 +179,18 @@ class HclParser {
 
     private fun expect(char: Char) {
         if (position >= input.length || input[position] != char) {
-            throw IllegalStateException("Expected '$char' at position $position, surrounding characters: ${getSurroundingCharacters(input, position)}")
+            throw IllegalStateException(
+                "Expected '$char' at position $position, surrounding characters: ${getSurroundingCharacters(input, position)}",
+            )
         }
         position++
     }
 
-    private fun getSurroundingCharacters(input: String, position: Int, range: Int = 2): String {
+    private fun getSurroundingCharacters(
+        input: String,
+        position: Int,
+        range: Int = 2,
+    ): String {
         val before = if (position - range >= 0) input.substring(position - range, position) else ""
         val after = if (position + range < input.length) input.substring(position + 1, position + 1 + range) else ""
         return before + after
@@ -262,7 +269,18 @@ class HclParser {
         return if (isIndented && baseIndentation >= 0) {
             // For indented heredoc, remove common indentation
             content.split('\n').map { line ->
-                if (line.isBlank()) line else line.substring(minOf(baseIndentation, line.indexOfFirst { !it.isWhitespace() }.takeIf { it >= 0 } ?: baseIndentation))
+                if (line.isBlank()) {
+                    line
+                } else {
+                    line.substring(
+                        minOf(
+                            baseIndentation,
+                            line.indexOfFirst {
+                                !it.isWhitespace()
+                            }.takeIf { it >= 0 } ?: baseIndentation,
+                        ),
+                    )
+                }
             }.joinToString("\n")
         } else {
             // For standard heredoc, return content as-is

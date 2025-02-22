@@ -1,74 +1,80 @@
 package bot.stewart.hcl
 
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class HclWriterPojoTest {
-
     data class SimpleConfig(
         val name: String,
         val count: Int,
-        val enabled: Boolean
+        val enabled: Boolean,
     )
 
     data class ServerConfig(
         val size: String,
         val tags: Map<String, String>,
-        val ports: List<Int>
+        val ports: List<Int>,
     )
 
     data class ScalingConfig(
         val min: Int,
         val max: Int,
-        val desired: Int
+        val desired: Int,
     )
 
     data class ApplicationConfig(
         val name: String,
         val server: ServerConfig,
         val scaling: ScalingConfig,
-        val environment: String?
+        val environment: String?,
     )
 
     @Test
     fun `write simple data class`() {
-        val config = SimpleConfig(
-            name = "test-app",
-            count = 3,
-            enabled = true
-        )
+        val config =
+            SimpleConfig(
+                name = "test-app",
+                count = 3,
+                enabled = true,
+            )
 
-        val expected = """
+        val expected =
+            """
             count = 3
             enabled = true
             name = "test-app"
             
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(expected, HclWriter.write(config))
     }
 
     @Test
     fun `write nested data classes`() {
-        val config = ApplicationConfig(
-            name = "production-api",
-            server = ServerConfig(
-                size = "t3.large",
-                tags = mapOf(
-                    "Environment" to "production",
-                    "Team" to "platform"
-                ),
-                ports = listOf(80, 443, 8080)
-            ),
-            scaling = ScalingConfig(
-                min = 2,
-                max = 6,
-                desired = 4
-            ),
-            environment = null
-        )
+        val config =
+            ApplicationConfig(
+                name = "production-api",
+                server =
+                    ServerConfig(
+                        size = "t3.large",
+                        tags =
+                            mapOf(
+                                "Environment" to "production",
+                                "Team" to "platform",
+                            ),
+                        ports = listOf(80, 443, 8080),
+                    ),
+                scaling =
+                    ScalingConfig(
+                        min = 2,
+                        max = 6,
+                        desired = 4,
+                    ),
+                environment = null,
+            )
 
-        val expected = """
+        val expected =
+            """
             name = "production-api"
             scaling = {
               desired = 4
@@ -88,45 +94,50 @@ class HclWriterPojoTest {
               }
             }
             
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(expected, HclWriter.write(config))
     }
 
     data class ConfigWithNullable(
         val required: String,
-        val optional: String?
+        val optional: String?,
     )
 
     @Test
     fun `write data class with nullable fields`() {
-        val config = ConfigWithNullable(
-            required = "value",
-            optional = null
-        )
+        val config =
+            ConfigWithNullable(
+                required = "value",
+                optional = null,
+            )
 
-        val expected = """
+        val expected =
+            """
             required = "value"
             
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(expected, HclWriter.write(config))
     }
 
     data class ConfigWithList(
-        val items: List<SimpleConfig>
+        val items: List<SimpleConfig>,
     )
 
     @Test
     fun `write data class with list of data classes`() {
-        val config = ConfigWithList(
-            items = listOf(
-                SimpleConfig("item1", 1, true),
-                SimpleConfig("item2", 2, false)
+        val config =
+            ConfigWithList(
+                items =
+                    listOf(
+                        SimpleConfig("item1", 1, true),
+                        SimpleConfig("item2", 2, false),
+                    ),
             )
-        )
 
-        val expected = """
+        val expected =
+            """
             items = [
               {
                 count = 1
@@ -140,7 +151,7 @@ class HclWriterPojoTest {
               },
             ]
             
-        """.trimIndent()
+            """.trimIndent()
 
         assertEquals(expected, HclWriter.write(config))
     }
