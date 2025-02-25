@@ -87,8 +87,7 @@ publishing {
             pom {
                 name.set(repoName)
                 description.set(repoDescription)
-                url.set("https://github.com/jordanst3wart/hcl")
-                // url.set(rootProject.jreleaser.project.links.homepage)
+                url.set(repoUrl)
 
                 inceptionYear.set("2025")
                 licenses {
@@ -99,15 +98,15 @@ publishing {
                 }
                 developers {
                     developer {
-                        id.set("jordanst3wart")
+                        id.set(repoUser)
                         name.set(repoAuthor)
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://github.com/jordanst3wart/hcl.git")
+                    connection.set("scm:git:git://github.com/$repoUser/$repoName.git")
                     // I don't feel like this should be needed
-                    developerConnection.set("scm:git:ssh://github.com/jordanst3wart/hcl.git")
-                    url.set("https://github.com/jordanst3wart/hcl")
+                    developerConnection.set("scm:git:ssh://github.com/$repoUser/$repoName.git")
+                    url.set(repoUrl)
                 }
             }
         }
