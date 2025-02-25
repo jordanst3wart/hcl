@@ -5,12 +5,12 @@ A jdk library to parse, and write HCL variable files (or tfvar files). HCL is a 
 
 **build.gradle.kts**
 ```kotlin
-implementation("bot.stewart:hcl:0.1.1")
+implementation("bot.stewart:hcl:0.2.0")
 ```
 
 **build.gradle**
 ```groovy
-implementation 'bot.stewart:hcl:0.1.1'
+implementation 'bot.stewart:hcl:0.2.0'
 ```
 
 **maven pom**
@@ -18,7 +18,7 @@ implementation 'bot.stewart:hcl:0.1.1'
 <dependency>
     <groupId>bot.stewart</groupId>
     <artifactId>hcl</artifactId>
-    <version>0.1.1</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
