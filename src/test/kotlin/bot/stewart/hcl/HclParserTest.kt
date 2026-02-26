@@ -325,6 +325,20 @@ class HclParserTest {
     }
 
     @Test
+    fun `parse quoted key in object`() {
+        parser.parse(
+            """
+            params = {
+              "test.quoted.key" = "test.value"
+            }
+            """.trimIndent(),
+        ).let { result ->
+            val params = result["params"] as Map<*, *>
+            assertEquals("test.value", params["test.quoted.key"])
+        }
+    }
+
+    @Test
     fun `parse complex nested structure`() {
         val nestedStructure = this::class.java.getResourceAsStream("/nested_structure.tfvars")?.bufferedReader()?.readText()!!
         parser.parse(nestedStructure).let { result ->
