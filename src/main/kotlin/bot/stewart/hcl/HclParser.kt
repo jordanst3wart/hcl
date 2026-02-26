@@ -154,7 +154,7 @@ class HclParser {
             if (input[position] == '}') break
 
             if (skipLineIfCommented()) continue
-            val key = parseKey()
+            val key = if (input[position] == '"') parseString() else parseKey()
             skipWhitespace()
             expect('=')
             skipWhitespace()
