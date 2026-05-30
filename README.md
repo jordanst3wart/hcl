@@ -27,7 +27,7 @@ implementation 'bot.stewart:hcl:0.2.0'
 ### Parsing
 
 ```java
-String hcl = "region = {\n  default = \"us-west-1\"\n};
+String hcl = "region = {\n  default = \"us-west-1\"\n}";
 HclParser parser = new HclParser();
 Map<String, Any> variables = parser.parse(hcl);
 ```
@@ -58,4 +58,4 @@ https://github.com/hashicorp/hcl/blob/main/hclsyntax/spec.md
 MIT license
 
 ### Miscellanous
-If you don't want to add a dependency this library is currently just two kotlin files. You can copy them into your project. This library has no dependencies. 
+If you don't want to add a dependency this library is currently just two kotlin files. You can copy them into your project. This library has no dependencies.
