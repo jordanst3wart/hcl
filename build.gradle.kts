@@ -1,7 +1,7 @@
 import org.jreleaser.model.Active
 
 plugins {
-    kotlin("jvm") version "2.1.10"
+    kotlin("jvm") version "2.2.21"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     `maven-publish`
     signing
@@ -34,7 +34,7 @@ java {
 
 dependencies {
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.11.4")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.14.4")
     implementation(kotlin("reflect"))
 }
 
