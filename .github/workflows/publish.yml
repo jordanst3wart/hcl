@@ -1,13 +1,16 @@
 name: Publish to Maven
 
+# manual trigger
 on:
-  pull_request:
-    types: [closed]
-    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build:
-    if: github.event.pull_request.merged == true
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
@@ -22,5 +25,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.1.0
 
+      # need to add secrets
       - name: Build and test with Gradle
         run: ./gradlew clean build test assemble publish jreleaserFullRelease
