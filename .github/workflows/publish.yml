@@ -25,6 +25,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6.1.0
 
-      # need to add secrets
+      # need to add secrets foo
       - name: Build and test with Gradle
         run: ./gradlew clean build test assemble publish jreleaserFullRelease
