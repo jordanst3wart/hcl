@@ -156,7 +156,11 @@ class HclParserTest {
 
     @Test
     fun `parse basic values`() {
-        val differentTypes = this::class.java.getResourceAsStream("/different_types.tfvars")?.bufferedReader()?.readText()!!
+        val differentTypes =
+            this::class.java
+                .getResourceAsStream("/different_types.tfvars")
+                ?.bufferedReader()
+                ?.readText()!!
         parser.parse(differentTypes).let { result ->
             result.let { map ->
                 assertEquals(5, map.size)
@@ -171,7 +175,11 @@ class HclParserTest {
 
     @Test
     fun `parse lists`() {
-        val lists = this::class.java.getResourceAsStream("/lists.tfvars")?.bufferedReader()?.readText()!!
+        val lists =
+            this::class.java
+                .getResourceAsStream("/lists.tfvars")
+                ?.bufferedReader()
+                ?.readText()!!
         parser.parse(lists).let { result ->
             result.let { map ->
                 assertEquals(4, map.size)
@@ -190,7 +198,11 @@ class HclParserTest {
      */
     @Test
     fun `parse heredoc`() {
-        val heredoc = this::class.java.getResourceAsStream("/heredoc.tfvars")?.bufferedReader()?.readText()!!
+        val heredoc =
+            this::class.java
+                .getResourceAsStream("/heredoc.tfvars")
+                ?.bufferedReader()
+                ?.readText()!!
         parser.parse(heredoc).let { result ->
             result.let { map ->
                 assertEquals(2, map.size)
@@ -218,7 +230,11 @@ class HclParserTest {
 
     @Test
     fun `parse list of objects`() {
-        val heredoc = this::class.java.getResourceAsStream("/list_objects.tfvars")?.bufferedReader()?.readText()!!
+        val heredoc =
+            this::class.java
+                .getResourceAsStream("/list_objects.tfvars")
+                ?.bufferedReader()
+                ?.readText()!!
         parser.parse(heredoc).let { result ->
             result.let { map ->
                 assertEquals(1, map.size)
@@ -249,7 +265,11 @@ class HclParserTest {
 
     @Test
     fun `parse map objects`() {
-        val mapObjects = this::class.java.getResourceAsStream("/map_objects.tfvars")?.bufferedReader()?.readText()!!
+        val mapObjects =
+            this::class.java
+                .getResourceAsStream("/map_objects.tfvars")
+                ?.bufferedReader()
+                ?.readText()!!
         parser.parse(mapObjects).let { result ->
             result.let { map ->
                 assertEquals(1, map.size)
@@ -268,7 +288,11 @@ class HclParserTest {
 
     @Test
     fun `parse map of lists`() {
-        val mapOfLists = this::class.java.getResourceAsStream("/map_of_lists.tfvars")?.bufferedReader()?.readText()!!
+        val mapOfLists =
+            this::class.java
+                .getResourceAsStream("/map_of_lists.tfvars")
+                ?.bufferedReader()
+                ?.readText()!!
         parser.parse(mapOfLists).let { result ->
             result.let { map ->
                 assertEquals(1, map.size)
@@ -287,7 +311,11 @@ class HclParserTest {
 
     @Test
     fun `parse nested maps`() {
-        val nestedMaps = this::class.java.getResourceAsStream("/nested_maps.tfvars")?.bufferedReader()?.readText()!!
+        val nestedMaps =
+            this::class.java
+                .getResourceAsStream("/nested_maps.tfvars")
+                ?.bufferedReader()
+                ?.readText()!!
         parser.parse(nestedMaps).let { result ->
             result.let { map ->
                 assertEquals(1, map.size)
@@ -326,21 +354,26 @@ class HclParserTest {
 
     @Test
     fun `parse quoted key in object`() {
-        parser.parse(
-            """
-            params = {
-              "test.quoted.key" = "test.value"
+        parser
+            .parse(
+                """
+                params = {
+                  "test.quoted.key" = "test.value"
+                }
+                """.trimIndent(),
+            ).let { result ->
+                val params = result["params"] as Map<*, *>
+                assertEquals("test.value", params["test.quoted.key"])
             }
-            """.trimIndent(),
-        ).let { result ->
-            val params = result["params"] as Map<*, *>
-            assertEquals("test.value", params["test.quoted.key"])
-        }
     }
 
     @Test
     fun `parse complex nested structure`() {
-        val nestedStructure = this::class.java.getResourceAsStream("/nested_structure.tfvars")?.bufferedReader()?.readText()!!
+        val nestedStructure =
+            this::class.java
+                .getResourceAsStream("/nested_structure.tfvars")
+                ?.bufferedReader()
+                ?.readText()!!
         parser.parse(nestedStructure).let { result ->
             result.let { map ->
                 assertEquals(1, map.size)
