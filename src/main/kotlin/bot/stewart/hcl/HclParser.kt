@@ -62,8 +62,8 @@ class HclParser {
         }
     }
 
-    private fun parseValue(): Any? {
-        return when {
+    private fun parseValue(): Any? =
+        when {
             input[position] == '"' -> parseString()
             input[position] == '{' -> parseObject()
             input[position] == '[' -> parseList()
@@ -88,7 +88,6 @@ class HclParser {
             }
             else -> throw IllegalStateException("Unexpected character at position $position: ${input[position]}")
         }
-    }
 
     private fun parseString(): String {
         expect('"')
@@ -268,20 +267,23 @@ class HclParser {
 
         return if (isIndented && baseIndentation >= 0) {
             // For indented heredoc, remove common indentation
-            content.split('\n').map { line ->
-                if (line.isBlank()) {
-                    line
-                } else {
-                    line.substring(
-                        minOf(
-                            baseIndentation,
-                            line.indexOfFirst {
-                                !it.isWhitespace()
-                            }.takeIf { it >= 0 } ?: baseIndentation,
-                        ),
-                    )
-                }
-            }.joinToString("\n")
+            content
+                .split('\n')
+                .map { line ->
+                    if (line.isBlank()) {
+                        line
+                    } else {
+                        line.substring(
+                            minOf(
+                                baseIndentation,
+                                line
+                                    .indexOfFirst {
+                                        !it.isWhitespace()
+                                    }.takeIf { it >= 0 } ?: baseIndentation,
+                            ),
+                        )
+                    }
+                }.joinToString("\n")
         } else {
             // For standard heredoc, return content as-is
             content

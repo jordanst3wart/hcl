@@ -8,11 +8,11 @@ object HclWriter {
         get() = "  "
 
     @JvmStatic
-    fun write(input: Map<String, Any?>): String {
-        return StringBuilder().apply {
-            writeMap(input, 0)
-        }.toString()
-    }
+    fun write(input: Map<String, Any?>): String =
+        StringBuilder()
+            .apply {
+                writeMap(input, 0)
+            }.toString()
 
     @JvmStatic
     fun write(
@@ -20,20 +20,21 @@ object HclWriter {
         path: String,
     ): File {
         val string =
-            StringBuilder().apply {
-                writeMap(input, 0)
-            }.toString()
+            StringBuilder()
+                .apply {
+                    writeMap(input, 0)
+                }.toString()
         return File(path).apply {
             writeText(string)
         }
     }
 
     @JvmStatic
-    fun write(obj: Any): String {
-        return StringBuilder().apply {
-            writeObject(obj, 0)
-        }.toString()
-    }
+    fun write(obj: Any): String =
+        StringBuilder()
+            .apply {
+                writeObject(obj, 0)
+            }.toString()
 
     @JvmStatic
     fun write(
@@ -41,9 +42,10 @@ object HclWriter {
         path: String,
     ): File {
         val string =
-            StringBuilder().apply {
-                writeObject(obj, 0)
-            }.toString()
+            StringBuilder()
+                .apply {
+                    writeObject(obj, 0)
+                }.toString()
         return File(path).apply {
             writeText(string)
         }
@@ -54,7 +56,8 @@ object HclWriter {
         indent: Int,
     ) {
         val properties =
-            obj::class.members
+            obj::class
+                .members
                 .filterIsInstance<KProperty1<Any, *>>()
                 .sortedBy { it.name }
 
@@ -138,12 +141,11 @@ object HclWriter {
         }
     }
 
-    private fun String.escape(): String {
-        return replace("\\", "\\\\")
+    private fun String.escape(): String =
+        replace("\\", "\\\\")
             .replace("\"", "\\\"")
             .replace("\b", "\\b")
             .replace("\n", "\\n")
             .replace("\r", "\\r")
             .replace("\t", "\\t")
-    }
 }

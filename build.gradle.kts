@@ -2,7 +2,7 @@ import org.jreleaser.model.Active
 
 plugins {
     kotlin("jvm") version "2.1.10"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     `maven-publish`
     signing
     id("org.jreleaser") version "1.16.0"
@@ -68,7 +68,11 @@ tasks.named("jreleaserFullRelease") {
 // hack to create directory for jreleaser
 tasks.named("publish") {
     doFirst {
-        val outputDir = layout.buildDirectory.dir("jreleaser").get().asFile
+        val outputDir =
+            layout.buildDirectory
+                .dir("jreleaser")
+                .get()
+                .asFile
         if (!outputDir.exists()) {
             outputDir.mkdirs()
         }
@@ -114,7 +118,12 @@ publishing {
 
     repositories {
         maven {
-            url = layout.buildDirectory.dir("staging-deploy").get().asFile.toURI()
+            url =
+                layout.buildDirectory
+                    .dir("staging-deploy")
+                    .get()
+                    .asFile
+                    .toURI()
         }
     }
 }
@@ -175,14 +184,35 @@ jreleaser {
                 description.set(repoDescription)
             }
             artifact {
-                path.set(tasks.named<Jar>("jar").get().archiveFile.get().asFile)
+                path.set(
+                    tasks
+                        .named<Jar>("jar")
+                        .get()
+                        .archiveFile
+                        .get()
+                        .asFile,
+                )
             }
             artifact {
-                path.set(tasks.named<Jar>("sourcesJar").get().archiveFile.get().asFile)
+                path.set(
+                    tasks
+                        .named<Jar>("sourcesJar")
+                        .get()
+                        .archiveFile
+                        .get()
+                        .asFile,
+                )
                 platform.set("java-sources")
             }
             artifact {
-                path.set(tasks.named<Jar>("javadocJar").get().archiveFile.get().asFile)
+                path.set(
+                    tasks
+                        .named<Jar>("javadocJar")
+                        .get()
+                        .archiveFile
+                        .get()
+                        .asFile,
+                )
                 platform.set("java-docs")
             }
         }
